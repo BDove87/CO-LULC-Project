@@ -843,9 +843,9 @@ save = SaveTask(EOPATCH_SAMPLES_FOLDER, overwrite_permission=OverwritePermission
 
 
 # EXPORT TIFF
-export_tiff = ExportToTiffTask((FeatureType.MASK_TIMELESS, "LBL_GBM"), 'C:/Users/bdove/Desktop/LULC Project/results/predicted_tiff')
+export_tiff = ExportToTiffTask((FeatureType.MASK_TIMELESS, "LBL_GBM"), 'C:/Users/bdove/Desktop/LULC Project/CO LULC/results/predicted_tiff')
 tiff_location = os.path.join(RESULTS_FOLDER, "predicted_tiff")
-os.makedirs('C:/Users/bdove/Desktop/LULC Project/results/predicted_tiff', exist_ok=True)
+os.makedirs('C:/Users/bdove/Desktop/LULC Project/CO LULC/results/predicted_tiff', exist_ok=True)
 
 workflow_nodes = linearly_connect_tasks(load, predict, export_tiff, save)
 workflow = EOWorkflow(workflow_nodes)
