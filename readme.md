@@ -7,4 +7,5 @@ This project is based off a tutorial from eo-learn (https://eo-learn.readthedocs
 ## Requirements
 
 eo-learn
+
 Reference data for training - this project was trained using data from the Denver Regional Council of Governments (https://drcog.org/services-and-resources/data-maps-and-modeling/regional-land-use-land-cover-project)
