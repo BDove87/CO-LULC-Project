@@ -46,7 +46,7 @@ from eolearn.ml_tools import FractionSamplingTask
 
 # %% Reading and processing CO border data
 
-# Folder where data for running the notebook is stored
+# Folder where data for running the script is stored
 DATA_FOLDER = 'C:/Users/bdove/Desktop/LULC Project/CO LULC/eo-learn-master/example_data'
 # Locations for collected data and intermediate results
 EOPATCH_FOLDER = 'C:/Users/bdove/Desktop/LULC Project/CO LULC/eopatches'
@@ -65,9 +65,9 @@ df.plot()
 plt.axis("off")
 
 
-#Get the country's shape in polygon format
+#Get the AOIs shape in polygon format
 coshape = df.geometry.values[0]
-#co_bord = co_bord.buffer(500)
+
 
 #%% Getting LULC reference data in the area of interest - takes a long time
 
@@ -125,9 +125,9 @@ shapefile_name = "grid_co.gpkg"
 bbox_gdf.to_file(os.path.join(RESULTS_FOLDER, shapefile_name), driver="GPKG")
 
 
-# Display bboxes over country
+# Display bboxes over AOI
 fig, ax = plt.subplots(figsize=(30, 30))
-ax.set_title("Selected 5x5 tiles from Colorado", fontsize=25)
+ax.set_title("Selected 5x5 tiles from California", fontsize=25)
 
 
 df.plot(ax=ax, facecolor="w", edgecolor="b", alpha=0.5)
@@ -705,14 +705,16 @@ plot_confusion_matrix(
 
 plt.tight_layout()
 
-fig = plt.figure(figsize=(20, 5))
+plt.savefig("C:/Users/bdove/Desktop/LULC Project/CA Land Cultivation/graphs/confusionmatrix.png")
+
+fig = plt.figure(figsize=(20, 25))
 
 label_ids, label_counts = np.unique(labels_train, return_counts=True)
 
 plt.bar(range(len(label_ids)), label_counts)
 plt.xticks(range(len(label_ids)), [class_names[i] for i in label_ids], rotation=45, fontsize=20)
 plt.yticks(fontsize=20);
-plt.savefig("C:/Users/bdove/Desktop/LULC Project/CO LULC/graphs/confusionmatrix.png")
+plt.savefig("C:/Users/bdove/Desktop/LULC Project/CA Land Cultivation/graphs/labelcounts.png")
 
 
 # %% Generating ROC Curves
@@ -951,4 +953,40 @@ plt.title("True Color", fontsize=20)
 
 fig.subplots_adjust(wspace=0.1, hspace=0.1)
 plt.savefig("C:/Users/bdove/Desktop/LULC Project/CO LULC/graphs/finalcomparison.png")
+
+#%% Reads GeoTiffs and converts them to polygons based on different unique tags
+
+import rasterio
+from rasterio import features
+from shapely.geometry import shape
+
+for i in range(25):
+    dataset = rasterio.open(f'C:/Users/bdove/Desktop/LULC Project/CO LULC/results/predicted_tiff/prediction_eopatch_{i}.tiff')
+    
+    #Gets affine transform matrix
+    transformer = dataset.transform
+    
+    #Gets array of tags
+    cult_val = dataset.read(1)
+    
+    tags = []
+    polys = []
+    
+    #Gets GeoJson-like polygons based on tags in geotiff
+    for polygons, value in features.shapes(cult_val, transform=transformer):
+        tags.append(value)
+        polys.append(polygons)
+    
+    
+    gdf = gpd.GeoDataFrame({'Tag':tags})
+    
+    #Converts GeoJson-like polygon data to shapely polygons
+    shapely_polys = []
+    for j in range(len(polys)):
+        shapely_polys.append(shape(polys[j]))
+    
+    
+    gdf.set_geometry(shapely_polys,inplace=True)
+    
+    gdf.to_file(f'C:/Users/bdove/Desktop/LULC Project/CO LULC/results/co_lulc_land_polys_eopatch_{i}', driver='GPKG')
 
